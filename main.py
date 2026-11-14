@@ -1,11 +1,12 @@
 # Importing Modules
 import mysql.connector
+from tabulate import tabulate
 
 # Connecting to SQL
 db = mysql.connector.connect(
     host = "localhost",
     user = "root",
-    password = "Your Passsword",
+    password = "Doctor@10th",
     database = "Main")
 cursor = db.cursor()
 
@@ -29,21 +30,22 @@ class Person():
         else:
             return data
 
-    def exit():
-        confirm = input("Confirm Exit y/n ?")
-        if confirm == "y":
-            return "y"
-        elif confirm == "n":
-            return "n"
-        else:
-            print("\nPlease Enter a Valid Value")
-            return "a"
+    def view_student():
+        query = """SELECT * from students"""
+        cursor.execute(query)
+        information = cursor.fetchall()
+        head = ["ID","Name","Course","Semester","Marks","Attendance","Grade"]
+        print(tabulate(information, headers = head, tablefmt = "fancy_grid"))
 
-class Student():
-    pass
-
-class teacher():
-    pass
+    def update_stuff(self,what,id,new):
+        if what == "m":
+            query1 = """UPDATE students SET marks = %s WHERE id = %s"""
+        elif what == "a":
+            query1 = """UPDATE students SET attendance = %s WHERE id = %s"""
+        values = (new,id)
+        cursor.execute(query1,values)
+        db.commit()
+        print("\nSuccessfully Updated Data")
 
 class admin():
     pass
@@ -91,13 +93,8 @@ while count == True:
                         print("\nPlease Enter a Valid Number")
                         continue
                     if query == 1:
-                        print("Student ID - ",data[0],"\n",
-                              "Name       - ",data[1],"\n",
-                              "Course     - ",data[2],"\n",
-                              "Semester   - ",data[3],"\n",
-                              "Marks      - ",data[4],"\n",
-                              "Attendance - ",data[5],"\n",
-                              "Grade      - ",data[6],"\n")
+                        head = ["ID","Name","Course","Semester","Marks","Attendance","Grade"]
+                        print(tabulate([data], headers = head, tablefmt = "fancy_grid"))
                         continue
                     elif query == 2:
                         print("\nYour Average Marks are ",data[4],"%")
@@ -107,7 +104,14 @@ while count == True:
                     elif query == 4:
                         print("\nYour Attendance is ",data[5],"%")
                     elif query == 5:
-                        pass
+                        confirm = input("Confirm Exit y/n ? ")
+                        if confirm == "y":
+                            student_count = False
+                        elif confirm == "n":
+                            continue
+                        else:
+                            print("\nPlease Enter a Valid Value")
+                            continue
                     else:
                         print("Enter Correct Command Number")
                         continue
@@ -115,67 +119,115 @@ while count == True:
             print("Enter a Integer Value")
             continue
 
-
-#Teacher Dashboard:
-def teacher_dash():
-    print("\n========================================\n" \
-              "             TEACHER PANEL              \n" \
-              "========================================\n\n" \
-              "1. View Students\n" \
-              "2. Search Student\n" \
-              "3. Update Marks\n" \
-              "4. Update Attendance\n" \
-              "5. LogOut")
-    query = input("Enter Command Number : ")
-    try:
-        query = int(query)
-    except:
-        print("\nPlease Enter a Valid Number")
-        main_dash()
-    if query == 1:
-        pass
     elif query == 2:
-        pass
-    elif query == 3:
-        pass
-    elif query == 4:
-        pass
-    else:
-        print("Enter Correct Command Number")
-        main_dash()
+        try:
+            teacher_id = int(input("Enter Teacher ID : "))
+            t1 = Person("t")
+            data2 = t1.finding_person(teacher_id)
+            if data2 == None:
+                print("No Teacher Found")
+                continue
+            else:
+                teacher_count = True
+                print("\nWelcome ",data2[1])
+                while teacher_count == True:
+                    print("\n========================================\n" \
+                            "             TEACHER PANEL              \n" \
+                            "========================================\n\n" \
+                            "1. View Students\n" \
+                            "2. Search Student\n" \
+                            "3. Update Marks\n" \
+                            "4. Update Attendance\n" \
+                            "5. LogOut")
+                    query = input("Enter Command Number : ")
+                    try:
+                        query = int(query)
+                    except ValueError:
+                        print("\nPlease Enter a Valid Number")
+                        continue
+                    if query == 1:
+                        Person.view_student()
+                        continue
+                    elif query == 2:
+                        search_id = input("Enter Student ID : ")
+                        try:
+                            search_id = int(search_id)
+                        except ValueError:
+                            print("Enter a Valid ID")
+                            continue
+                        s2 = Person("s")
+                        data3 = s2.finding_person(search_id)
+                        if data3 == None:
+                            print("No Studnet Found")
+                            continue
+                        else:
+                            head = ["ID","Name","Course","Semester","Marks","Attendance","Grade"]
+                            print(tabulate([data3], headers = head, tablefmt = "fancy_grid"))
+                            continue
 
-#Admin Dashboard
-def admin_dash():
-    print("\n========================================\n" \
-                  "             ADMIN PANEL              \n" \
-                  "========================================\n\n" \
-                  "1. View Students\n" \
-                  "2. Search Student\n" \
-                  "3. Update Marks\n" \
-                  "4. Update Attendance\n" \
-                  "5. Add New Student\n" \
-                  "6. Remove Student\n" \
-                  "7. Calculate Average Marks\n" \
-                  "8. Calculate Average Attendance\n" \
-                  "9. Change Password\n"\
-                  "10. Logout")
-    query = input("Enter Command Number : ")
-    try:
-         query = int(query)
-    except:
-            print("\nPlease Enter a Valid Number")
-            admin_dash()
-    if query == 1:
-        pass
-    elif query == 2:
-        pass
-    elif query == 3:
-        pass
-    elif query == 4:
-        pass
-    else:
-        print("Enter Correct Command Number")
-        main_dash()
+                    elif query == 3:
+                        mark_id = input("Enter Student ID : ")
+                        try:
+                            mark_id = int(mark_id)
+                        except:
+                            print("Please Enter Integer Value")
+                            continue
+                        u1 = Person("s")
+                        found = u1.finding_person(mark_id)
+                        if found == None:
+                            print("No Student Found")
+                            continue
+                        else:
+                            print("Student Found")
+                            head = ["ID","Name","Course","Semester","Marks","Attendance","Grade"]
+                            print(tabulate([found], headers = head, tablefmt= "fancy_grid"))
+                            new_data = input("Enter New Marks Data : ")
+                            try:
+                                new_data = int(new_data)
+                            except ValueError:
+                                print("Enter Integer Value")
+                                continue
+                        u1.update_stuff("m",mark_id,new_data)
+                        continue
 
-main_dash()
+                    elif query == 4:
+                        update_id = input("Enter Student ID - ")
+                        try:
+                            update_id = int(update_id)
+                        except:
+                            print("Enter Valid ID")
+                            continue
+                        u1 = Person("s")
+                        found = u1.finding_person(update_id)
+                        if found == None:
+                            print("No Student Found")
+                            continue
+                        else:
+                            print("Student Found")
+                            head = ["ID","Name","Course","Semester","Marks","Attendance","Grade"]
+                            print(tabulate([found], headers = head, tablefmt = "fancy_grid"))
+                            new_data = input("Enter New Attendance Data : ")
+                            try:
+                                new_data = int(new_data)
+                            except ValueError:
+                                print("Enter Integer Value")
+                                continue
+                        u1.update_stuff("a",update_id,new_data)
+                        continue
+
+                    elif query == 5:
+                        confirm = input("Are you Sure? y/n : ")
+                        if confirm == "y":
+                            teacher_count = False
+                        elif confirm == "n":
+                            continue
+                        else:
+                            print("Enter a Valid Value")
+                    else:
+                        print("Enter Correct Command Number")
+                        continue
+        except ValueError:
+            print("Enter a Integer Value")
+            continue
+
 db.close()
